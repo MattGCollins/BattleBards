@@ -41,13 +41,13 @@ namespace Tutorial2D
 
 
 			//Get input from the input manager, round it to an integer and store in horizontal to set x axis move direction 
-			if (Input.GetKey (KeyCode.RightArrow))
+			if (Input.GetKey (KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
 				horizontal = 1;
-			if (Input.GetKey(KeyCode.LeftArrow))
+			if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
 				horizontal = -1;
-			if (Input.GetKey(KeyCode.UpArrow))
+			if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W))
 				vertical = 1;
-			if (Input.GetKey(KeyCode.DownArrow))
+			if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S))
 				vertical = -1;
 			if (horizontal != 0)
 				vertical = 0;
