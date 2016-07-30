@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;       //Allows us to use Lists.
 using Random = UnityEngine.Random;      //Tells Random to use the Unity Engine random number generator.
+using MapGenerator;
 
 namespace Tutorial2D
 
@@ -35,95 +36,37 @@ namespace Tutorial2D
 		public GameObject[] wallTiles;                                  //Array of wall prefabs.
 		public GameObject[] foodTiles;                                  //Array of food prefabs.
 		public GameObject[] enemyTiles;                                 //Array of enemy prefabs.
-		public GameObject[] outerWallTiles;                             //Array of outer tile prefabs.
+		public GameObject[] mapTiles;                             //Array of outer tile prefabs.
 
 		private Transform boardHolder;                                  //A variable to store a reference to the transform of our Board object.
 		private List <Vector3> gridPositions = new List <Vector3> ();   //A list of possible locations to place tiles.
 
-
-		//Clears our list gridPositions and prepares it to generate a new board.
-		/*void InitialiseList ()
-		{
-			//Clear our list gridPositions.
-			gridPositions.Clear ();
-
-			//Loop through x axis (columns).
-			for(int x = 1; x < columns-1; x++)
-			{
-				//Within each column, loop through y axis (rows).
-				for(int y = 1; y < rows-1; y++)
-				{
-					//At each index add a new Vector3 to our list with the x and y coordinates of that position.
-					gridPositions.Add (new Vector3(x, y, 0f));
-				}
-			}
-		}*/
+		public OverworldMap overworldMap;
+		private OverworldGenerator overworldGenerator;
 
 
 		//Sets up the outer walls and floor (background) of the game board.
 		void BoardSetup ()
 		{
 			//Instantiate Board and set boardHolder to its transform.
+			overworldGenerator = GetComponent<OverworldGenerator>();
 			boardHolder = new GameObject ("Board").transform;
 
-			int[,] map = {
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0},
-			{0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0},
-			{0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}};
+			overworldMap = overworldGenerator.initBoard ();
 
 			//Loop along x axis, starting from -1 (to fill corner) with floor or outerwall edge tiles.
-			for(int x = 0; x < 36; x++)
+			/*for(int x = 0; x < OverworldMap.mapWidth; x++)
 			{
 				//Loop along y axis, starting from -1 to place floor or outerwall tiles.
-				for(int y = 0; y < 36; y++)
+				for(int y = 0; y < OverworldMap.mapHeight; y++)
 				{
 					//Choose a random tile from our array of floor tile prefabs and prepare to instantiate it.
 					float scaleBoard = 1f;
-					GameObject toInstantiate = new GameObject();
-
-					if(map[x,y] == 1)
-						toInstantiate = floorTiles[Random.Range (0,floorTiles.Length)];
-
-					//Check if we current position is at board edge, if so choose a random outer wall prefab from our array of outer wall tiles.
-					if(map[x,y] == 0)
-						toInstantiate = outerWallTiles [Random.Range (0, outerWallTiles.Length)];
+					GameObject toInstantiate = mapTiles[overworldMap.boardTiles[x,y]];
 
 					//Instantiate the GameObject instance using the prefab chosen for toInstantiate at the Vector3 corresponding to current grid position in loop, cast it to GameObject.
-					float v_x = Convert.ToSingle(-x * scaleBoard);
-					float v_y = Convert.ToSingle(y * scaleBoard);
+					float v_x = Convert.ToSingle(x * scaleBoard) - overworldMap.cityX;
+					float v_y = Convert.ToSingle(y * scaleBoard) - overworldMap.cityY;
 					GameObject instance =
 						Instantiate (toInstantiate, new Vector3 (v_y, v_x, 0f), Quaternion.identity) as GameObject;
 
@@ -131,6 +74,28 @@ namespace Tutorial2D
 					instance.transform.SetParent (boardHolder);
 				}
 			}
+			var playerTransform = GameObject.Find ("Player").transform;
+			GameObject.Find ("Player").transform.position = new Vector3 (playerTransform.position.x, playerTransform.position.y, playerTransform.position.z);*/
+			generateTiles ();
+		}
+
+
+		void generateTiles ()
+		{
+			for(int x = 0; x < OverworldMap.mapWidth; ++x) {
+				for (int y = 0; y < OverworldMap.mapHeight; ++y) {
+					generateTile (overworldMap.boardTiles[x, y], x - overworldMap.cityX, y - overworldMap.cityY);
+				}
+			}
+		}
+
+		public GameObject generateTile(int tileIndex, int x, int y) {
+			GameObject toInstantiate = mapTiles [tileIndex];
+			GameObject instance = Instantiate (toInstantiate, new Vector3 ((float) x, (float) y, 0f), Quaternion.identity) as GameObject;
+
+			instance.transform.SetParent (boardHolder);
+
+			return instance;
 		}
 
 
