@@ -62,10 +62,12 @@ namespace Tutorial2D
 			return false;
 		}
 
+        public bool moving = false;
 
 		//Co-routine for moving units from one space to next, takes a parameter end to specify where to move to.
 		protected IEnumerator SmoothMovement (Vector3 end)
 		{
+            moving = true;
 			//Calculate the remaining distance to move based on the square magnitude of the difference between current position and end parameter. 
 			//Square magnitude is used instead of magnitude because it's computationally cheaper.
 			float sqrRemainingDistance = (transform.position - end).sqrMagnitude;
@@ -85,6 +87,7 @@ namespace Tutorial2D
 				//Return and loop until sqrRemainingDistance is close enough to zero to end the function
 				yield return null;
 			}
+            moving = false;
 		}
 
 
