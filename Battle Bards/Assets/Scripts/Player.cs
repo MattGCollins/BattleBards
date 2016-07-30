@@ -1,20 +1,16 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using System;
+using MapGenerator;
 
 namespace Tutorial2D
 {
 	//Player inherits from MovingObject, our base class for objects that can move, Enemy also inherits from this.
 	public class Player : MovingObject
 	{
-		public float restartLevelDelay = 1f;        //Delay time in seconds to restart level.
-		public int pointsPerFood = 10;              //Number of points to add to player food points when picking up a food object.
-		public int pointsPerSoda = 20;              //Number of points to add to player food points when picking up a soda object.
-		public int wallDamage = 1;                  //How much damage a player does to a wall when chopping it.
-
-
 		private Animator animator;                  //Used to store a reference to the Player's animator component.
-		private int food;                           //Used to store player food points total during level.
+        public float restartLevelDelay = 1f;        //Delay time in seconds to restart level.
+        private bool wasMoving = false;
         
 		//Start overrides the Start function of MovingObject
 		protected override void Start ()
@@ -56,46 +52,75 @@ namespace Tutorial2D
             //Get input from the input manager, round it to an integer and store in vertical to set y axis move direction
 
             //Check if we have a non-zero value for horizontal or vertical
-            if (!moving && (horizontal != 0 || vertical != 0))
-			{
-				//Call AttemptMove passing in the generic parameter Wall, since that is what Player may interact with if they encounter one (by attacking it)
-				//Pass in horizontal and vertical as parameters to specify the direction to move Player in.
-				AttemptMove (horizontal,vertical);
-                Debug.Log(transform.position.x + ", " + transform.position.y);
+            if(!moving)
+            {
+                if (wasMoving)
+                {
+                    if (!checkForEnemyInRegion())
+                    {
+                        AttemptMove(horizontal, vertical);
+                    }
+                } else
+                {
+                    AttemptMove(horizontal, vertical);
+                }
             }
+            wasMoving = moving;
 		}
 
 		//AttemptMove overrides the AttemptMove function in the base class MovingObject
 		//AttemptMove takes a generic parameter T which for Player will be of the type Wall, it also takes integers for x and y direction to move in.
 		protected override void AttemptMove (int xDir, int yDir)
-		{
-            Debug.Log("Attempting Move");
-			//Call the AttemptMove method of the base class, passing in the component T (in this case Wall) and x and y direction to move.
-			base.AttemptMove (xDir, yDir);
+        {
+            if ((xDir != 0 || yDir != 0))
+            {
+                Debug.Log("Move Check");
+                //Hit allows us to reference the result of the Linecast done in Move.
+                RaycastHit2D hit;
 
-			//Hit allows us to reference the result of the Linecast done in Move.
-			RaycastHit2D hit;
-
-			//If Move returns true, meaning Player was able to move into an empty space.
-			if (Move (xDir, yDir, out hit)) 
-			{
-                //Call RandomizeSfx of SoundManager to play the move sound, passing in two audio clips to choose from.
+			    //If Move returns true, meaning Player was able to move into an empty space.
+			    if (Move (xDir, yDir, out hit)) 
+			    {
+                    Debug.Log("Move Good!");
+                    //Call RandomizeSfx of SoundManager to play the move sound, passing in two audio clips to choose from.
+                }
             }
+        }
+
+        private bool checkForEnemyInRegion()
+        {
+            int x = Convert.ToInt32(transform.position.x);
+            int y = Convert.ToInt32(transform.position.y);
+            int chance = 0;
+            switch (BoardManager.overworldMap.boardTiles[x, y])
+            {
+                case OverworldTiles.PATH_TILE:
+                    chance = 2;
+                    break;
+                case OverworldTiles.GRASS_TILE:
+                    chance = 5;
+                    break;
+                case OverworldTiles.FOREST_TILE:
+                    chance = 10;
+                    break;
+                case OverworldTiles.SAND_TILE:
+                    chance = 20;
+                    break;
+            }
+
 
             System.Random random = new System.Random();
 
-            // 5% chance of initiating combat on move
-            // TODO: this is really hacky; 
-            // scene transitions should be managed by the game manager
-            if (random.Next(0, 100) > 95)
+            if (random.Next(0, 100) <= chance)
             {
                 //GameObject.Find("GameManager").GetComponent<GameManager>().playerPos = transform.position;
                 //Invoke the Restart function to start the next level with a delay of restartLevelDelay (default 1 second).
+                Debug.Log("Battle!");
                 //Invoke("LoadCombat", restartLevelDelay);
+                return true;
             }
-			//Since the player has moved and lost food points, check if the game has ended.
-			CheckIfGameOver();
-            Debug.Log("Moved");
+
+            return false;
         }
 
 
@@ -116,25 +141,7 @@ namespace Tutorial2D
 		private void LoadCombat ()
 		{
 			//Load the last scene loaded, in this case Main, the only scene in the game.
-            SceneManager.LoadScene("Combat");
-		}
-
-
-		//LoseFood is called when an enemy attacks the player.
-		//It takes a parameter loss which specifies how many points to lose.
-		public void LoseFood (int loss)
-		{
-			//Set the trigger for the player animator to transition to the playerHit animation.
-			animator.SetTrigger ("playerHit");
-
-			//Check to see if game has ended.
-			CheckIfGameOver ();
-		}
-
-
-		//CheckIfGameOver checks if the player is out of food points and if so, ends the game.
-		private void CheckIfGameOver ()
-		{
+            //SceneManager.LoadScene("Combat");
 		}
 	}
 }

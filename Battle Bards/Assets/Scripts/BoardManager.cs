@@ -37,7 +37,7 @@ namespace Tutorial2D
 		private Transform boardHolder;                                  //A variable to store a reference to the transform of our Board object.
 		private List <Vector3> gridPositions = new List <Vector3> ();   //A list of possible locations to place tiles.
 
-		public OverworldMap overworldMap;
+		public static OverworldMap overworldMap;
 		private OverworldGenerator overworldGenerator;
 
 
@@ -49,38 +49,24 @@ namespace Tutorial2D
 			boardHolder = new GameObject ("Board").transform;
 
 			overworldMap = overworldGenerator.initBoard ();
-
-			//Loop along x axis, starting from -1 (to fill corner) with floor or outerwall edge tiles.
-			/*for(int x = 0; x < OverworldMap.mapWidth; x++)
-			{
-				//Loop along y axis, starting from -1 to place floor or outerwall tiles.
-				for(int y = 0; y < OverworldMap.mapHeight; y++)
-				{
-					//Choose a random tile from our array of floor tile prefabs and prepare to instantiate it.
-					float scaleBoard = 1f;
-					GameObject toInstantiate = mapTiles[overworldMap.boardTiles[x,y]];
-
-					//Instantiate the GameObject instance using the prefab chosen for toInstantiate at the Vector3 corresponding to current grid position in loop, cast it to GameObject.
-					float v_x = Convert.ToSingle(x * scaleBoard) - overworldMap.cityX;
-					float v_y = Convert.ToSingle(y * scaleBoard) - overworldMap.cityY;
-					GameObject instance =
-						Instantiate (toInstantiate, new Vector3 (v_y, v_x, 0f), Quaternion.identity) as GameObject;
-
-					//Set the parent of our newly instantiated object instance to boardHolder, this is just organizational to avoid cluttering hierarchy.
-					instance.transform.SetParent (boardHolder);
-				}
-			}
-			var playerTransform = GameObject.Find ("Player").transform;
-			GameObject.Find ("Player").transform.position = new Vector3 (playerTransform.position.x, playerTransform.position.y, playerTransform.position.z);*/
 			generateTiles ();
+            setInitialPlayerPosition();
 		}
 
+        private void setInitialPlayerPosition()
+        {
+            Transform playerTransform = GameObject.Find("Player").transform;
+            if(null != playerTransform)
+            {
+                playerTransform.position = new Vector3(overworldMap.cityX, overworldMap.cityY, playerTransform.position.z);
+            }
+        }
 
-		void generateTiles ()
+        void generateTiles ()
 		{
 			for(int x = 0; x < OverworldMap.mapWidth; ++x) {
 				for (int y = 0; y < OverworldMap.mapHeight; ++y) {
-					generateTile (overworldMap.boardTiles[x, y], x - overworldMap.cityX, y - overworldMap.cityY);
+					generateTile (overworldMap.boardTiles[x, y], x, y);
 				}
 			}
 		}
