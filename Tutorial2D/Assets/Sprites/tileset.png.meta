@@ -1,21 +1,21 @@
 fileFormatVersion: 2
-guid: a0b228f2dcdd6b14caf3d466cdfd0cba
-timeCreated: 1468986943
+guid: c89250073c5612f4dafc99047eeeff8d
+timeCreated: 1469850253
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
-    21300000: babytileset_0
-    21300002: babytileset_1
-    21300004: babytileset_2
-    21300006: babytileset_3
-    21300008: babytileset_4
-    21300010: babytileset_5
-    21300012: babytileset_6
-    21300014: babytileset_7
+    21300000: Tile_Cave
+    21300002: Tile_Grass
+    21300004: Tile_Water
+    21300006: Tile_Forest
+    21300008: Tile_Path
+    21300010: Tile_Mountain
+    21300012: Tile_Sand
+    21300014: Tile_Town
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
-    enableMipMap: 0
+    enableMipMap: 1
     linearTexture: 0
     correctGamma: 0
     fadeOut: 0
@@ -34,8 +34,8 @@ TextureImporter:
   cubemapConvolutionSteps: 7
   cubemapConvolutionExponent: 1.5
   seamlessCubemap: 0
-  textureFormat: -3
-  maxTextureSize: 8192
+  textureFormat: -2
+  maxTextureSize: 2048
   textureSettings:
     filterMode: 0
     aniso: 16
@@ -58,7 +58,7 @@ TextureImporter:
   buildTargetSettings: []
   spriteSheet:
     sprites:
-    - name: babytileset_0
+    - name: Tile_Cave
       rect:
         serializedVersion: 2
         x: 0
@@ -66,10 +66,10 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
-    - name: babytileset_1
+    - name: Tile_Grass
       rect:
         serializedVersion: 2
         x: 16
@@ -77,10 +77,10 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
-    - name: babytileset_2
+    - name: Tile_Water
       rect:
         serializedVersion: 2
         x: 32
@@ -88,10 +88,10 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
-    - name: babytileset_3
+    - name: Tile_Forest
       rect:
         serializedVersion: 2
         x: 48
@@ -99,10 +99,10 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
-    - name: babytileset_4
+    - name: Tile_Path
       rect:
         serializedVersion: 2
         x: 0
@@ -110,10 +110,10 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
-    - name: babytileset_5
+    - name: Tile_Mountain
       rect:
         serializedVersion: 2
         x: 16
@@ -121,10 +121,10 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
-    - name: babytileset_6
+    - name: Tile_Sand
       rect:
         serializedVersion: 2
         x: 32
@@ -132,10 +132,10 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
-    - name: babytileset_7
+    - name: Tile_Town
       rect:
         serializedVersion: 2
         x: 48
@@ -143,7 +143,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
     outline: []
