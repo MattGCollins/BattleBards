@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 namespace Tutorial2D
 {
@@ -11,7 +12,7 @@ namespace Tutorial2D
 		public static GameManager instance = null;              //Static instance of GameManager which allows it to be accessed by any other script.
 		private BoardManager boardScript;                       //Store a reference to our BoardManager which will set up the level.
 		private int level = 3;                                  //Current level number, expressed in game as "Day 1".
-
+        public Vector3 playerPos;
 
 		//Awake is always called before any Start functions
 		void Awake()
@@ -35,15 +36,25 @@ namespace Tutorial2D
 			boardScript = GetComponent<BoardManager>();
 
 			//Call the InitGame function to initialize the first level 
-			InitGame();
+			InitOverworld();
 		}
 
+        void OnLevelWasLoaded(int index)
+        {
+            Scene scene = SceneManager.GetActiveScene();
+            //Call InitGame to initialize our level.
+            if (scene.name == "testScene")
+            {
+                GameObject.Find("Player").transform.position = playerPos;
+                InitOverworld();
+            }
+        }
+
 		//Initializes the game for each level.
-		void InitGame()
+		void InitOverworld()
 		{
 			//Call the SetupScene function of the BoardManager script, pass it current level number.
 			boardScript.SetupScene(level);
-
 		}
 
 

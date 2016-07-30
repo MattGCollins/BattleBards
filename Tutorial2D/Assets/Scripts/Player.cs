@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections;
+using UnityEngine.SceneManagement;
+using System;
 
 namespace Tutorial2D
 {
@@ -15,13 +16,11 @@ namespace Tutorial2D
 		private Animator animator;                  //Used to store a reference to the Player's animator component.
 		private int food;                           //Used to store player food points total during level.
 
-
 		//Start overrides the Start function of MovingObject
 		protected override void Start ()
 		{
 			//Get a component reference to the Player's animator component
 			animator = GetComponent<Animator>();
-
 
 			//Call the Start function of the MovingObject base class.
 			base.Start ();
@@ -82,9 +81,20 @@ namespace Tutorial2D
 			{
 				//Call RandomizeSfx of SoundManager to play the move sound, passing in two audio clips to choose from.
 			}
+            
+            System.Random random = new System.Random();
 
+            // 5% chance of initiating combat on move
+            // TODO: this is really hacky; 
+            // scene transitions should be managed by the game manager
+            if (random.Next(0, 100) > 95)
+            {
+                GameObject.Find("GameManager").GetComponent<GameManager>().playerPos = transform.position;
+                //Invoke the Restart function to start the next level with a delay of restartLevelDelay (default 1 second).
+                Invoke("LoadCombat", restartLevelDelay);
+            }
 			//Since the player has moved and lost food points, check if the game has ended.
-			CheckIfGameOver ();
+			CheckIfGameOver();
 		}
 
 
@@ -98,44 +108,14 @@ namespace Tutorial2D
 		//OnTriggerEnter2D is sent when another object enters a trigger collider attached to this object (2D physics only).
 		private void OnTriggerEnter2D (Collider2D other)
 		{
-			//Check if the tag of the trigger collided with is Exit.
-			if(other.tag == "Exit")
-			{
-				//Invoke the Restart function to start the next level with a delay of restartLevelDelay (default 1 second).
-				Invoke ("Restart", restartLevelDelay);
-
-				//Disable the player object since level is over.
-				enabled = false;
-			}
-
-			//Check if the tag of the trigger collided with is Food.
-			else if(other.tag == "Food")
-			{
-				//Add pointsPerFood to the players current food total.
-				food += pointsPerFood;
-
-				//Disable the food object the player collided with.
-				other.gameObject.SetActive (false);
-			}
-
-			//Check if the tag of the trigger collided with is Soda.
-			else if(other.tag == "Soda")
-			{
-				//Add pointsPerSoda to players food points total
-				food += pointsPerSoda;
-
-
-				//Disable the soda object the player collided with.
-				other.gameObject.SetActive (false);
-			}
 		}
 
 
 		//Restart reloads the scene when called.
-		private void Restart ()
+		private void LoadCombat ()
 		{
 			//Load the last scene loaded, in this case Main, the only scene in the game.
-			Application.LoadLevel (Application.loadedLevel);
+            SceneManager.LoadScene("Combat");
 		}
 
 
