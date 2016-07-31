@@ -5,19 +5,35 @@ using System.Collections.Generic;
 
 namespace MapGenerator {
 
-	public class DungeonGenerator : MonoBehaviour {
+    public class DungeonTiles
+    {
+        public const int TILE_WALL = 0;
+        public const int TILE_FLOOR = 1;
+        public const int TILE_START = 1;
+        public const int TILE_END = 1;
+    }
 
-		public GameObject[] prototypeTiles;
-		public int[,] boardTiles;
-		private Transform boardHolder;
+    public class Dungeon
+    {
+        public int[,] boardTiles;
+        public int startX;
+        public int startY;
+        public int endX;
+        public int endY;
+        public int level;
+    }
+
+	public class DungeonGenerator : MonoBehaviour {
+        
+        private Dungeon dungeon;
 		private ArrayList rooms = new ArrayList();
 
 		Room startRoom;
 		Room endRoom;
 
-		public void createLevel(int numOfRooms, int maxRoomSize, int startingPaths, int maxPathLength, int mapWidth, int mapHeight) {
-			boardHolder = new GameObject ("Board").transform;
-			boardTiles = new int[mapWidth, mapHeight];
+		public Dungeon createLevel(int numOfRooms, int maxRoomSize, int startingPaths, int maxPathLength, int mapWidth, int mapHeight) {
+            dungeon = new Dungeon();
+			dungeon.boardTiles = new int[mapWidth, mapHeight];
 
 			generateStartingRooms (numOfRooms, maxRoomSize, mapWidth, mapHeight);
 
@@ -30,8 +46,8 @@ namespace MapGenerator {
 			}
 
 			addStartAndEnd ();
-
-			renderBoard (mapWidth, mapHeight);
+            
+            return dungeon;
 		}
 
 		void generateStartingRooms (int numOfRooms, int maxRoomSize, int mapWidth, int mapHeight)
@@ -88,9 +104,13 @@ namespace MapGenerator {
 		}
 
 		void addStartAndEnd ()
-		{
-			boardTiles [startRoom.x1 + 1, startRoom.y1 + 1] = 2;
-			boardTiles [endRoom.x1 + 1, endRoom.y1 + 1] = 3;
+        {
+            dungeon.startX = startRoom.x1 + 1;
+            dungeon.startY = startRoom.y1 + 1;
+            dungeon.endX = endRoom.x1 + 1;
+            dungeon.endY = endRoom.y1 + 1;
+            dungeon.boardTiles [startRoom.x1 + 1, startRoom.y1 + 1] = DungeonTiles.TILE_START;
+            dungeon.boardTiles [endRoom.x1 + 1, endRoom.y1 + 1] = DungeonTiles.TILE_END;
 		}
 
 		ArrayList generateRoomGroups()
@@ -212,31 +232,13 @@ namespace MapGenerator {
 		{
 			for(int x = room.x1; x <= room.x2; ++x) {
 				for(int y = room.y1; y <= room.y2; ++y) {
-					boardTiles [x, y] = 1;
-				}
-			}
-		}
-
-		void renderBoard (int mapWidth, int mapHeight)
-		{
-			for (int x = 0; x < mapWidth; ++x) {
-				for (int y = 0; y < mapHeight; ++y) {
-					generateTile(boardTiles[x,y], x, y);
+                    dungeon.boardTiles [x, y] = DungeonTiles.TILE_FLOOR;
 				}
 			}
 		}
 
 		private Room createRoom(int x1, int y1, int width, int height) {
 				return new Room(x1, y1, x1 + width, y1 + height);
-		}
-
-		public GameObject generateTile(int tileIndex, int x, int y) {
-			GameObject toInstantiate = prototypeTiles [tileIndex];
-			GameObject instance = Instantiate (toInstantiate, new Vector3 ((float) x, (float) y, 0f), Quaternion.identity) as GameObject;
-
-			instance.transform.SetParent (boardHolder);
-
-			return instance;
 		}
 
 		private class Room {

@@ -18,7 +18,7 @@ namespace MapGenerator {
 
 	public class OverworldGenerator : MonoBehaviour {
 
-		public OverworldMap overworldMap;
+		private OverworldMap overworldMap;
         
 		private Transform boardHolder;
 
@@ -49,7 +49,7 @@ namespace MapGenerator {
 			fillForests ();
 			createRiver (Convert.ToInt32(overworldMap.caveX), Convert.ToInt32(overworldMap.caveY) + 2, new int[]{ 0, 1, 2, 3 }, 2);
 			createBisectingRiver (Convert.ToInt32(overworldMap.caveX) - 2, Convert.ToInt32(overworldMap.caveY), 6);
-			createPath (Convert.ToInt32 (overworldMap.cityX), Convert.ToInt32 (overworldMap.cityY) + 1, Convert.ToInt32 (overworldMap.caveX) - 9, Convert.ToInt32 (overworldMap.caveY));
+			createPath (Convert.ToInt32 (overworldMap.cityX) + 1, Convert.ToInt32 (overworldMap.cityY), Convert.ToInt32 (overworldMap.caveX) - 9, Convert.ToInt32 (overworldMap.caveY));
 			createPath (Convert.ToInt32 (overworldMap.caveX) - 9, Convert.ToInt32 (overworldMap.caveY), Convert.ToInt32 (overworldMap.caveX), Convert.ToInt32 (overworldMap.caveY) - 9);
 			createPath (Convert.ToInt32 (overworldMap.caveX), Convert.ToInt32 (overworldMap.caveY) - 9, Convert.ToInt32 (overworldMap.caveX), Convert.ToInt32 (overworldMap.caveY) - 1);
 			fillSand ();

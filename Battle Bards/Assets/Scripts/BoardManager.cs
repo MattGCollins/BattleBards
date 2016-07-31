@@ -10,46 +10,35 @@ namespace Tutorial2D
 
 	public class BoardManager : MonoBehaviour
 	{
-		// Using Serializable allows us to embed a class with sub properties in the inspector.
-		/*[Serializable]
-		public class Count
-		{
-			public int minimum;             //Minimum value for our Count class.
-			public int maximum;             //Maximum value for our Count class.
-
-
-			//Assignment constructor.
-			public Count (int min, int max)
-			{
-				minimum = min;
-				maximum = max;
-			}
-		}
-
-
-		public int columns = 36;                                         //Number of columns in our game board.
-		public int rows = 36;                                            //Number of rows in our game board.
-		public Count wallCount = new Count (5, 9);                      //Lower and upper limit for our random number of walls per level.
-		public Count foodCount = new Count (1, 5);     */                 //Lower and upper limit for our random number of food items per level.
-		public GameObject exit;                                         //Prefab to spawn for exit.
 		public GameObject[] mapTiles;                             //Array of outer tile prefabs.
 
 		private Transform boardHolder;                                  //A variable to store a reference to the transform of our Board object.
 		private List <Vector3> gridPositions = new List <Vector3> ();   //A list of possible locations to place tiles.
 
 		public static OverworldMap overworldMap;
-		private OverworldGenerator overworldGenerator;
+        public static Dungeon[] dungeons;
+
+        private OverworldGenerator overworldGenerator;
+        private DungeonGenerator dungeonGenerator;
 
 
-		//Sets up the outer walls and floor (background) of the game board.
-		void BoardSetup ()
+        //Sets up the outer walls and floor (background) of the game board.
+        void BoardSetup ()
 		{
-			//Instantiate Board and set boardHolder to its transform.
-			overworldGenerator = GetComponent<OverworldGenerator>();
-			boardHolder = new GameObject ("Board").transform;
+            //Instantiate Board and set boardHolder to its transform.
+            overworldGenerator = GetComponent<OverworldGenerator>();
+            dungeonGenerator = GetComponent<DungeonGenerator>();
+            boardHolder = new GameObject ("Board").transform;
 
 			overworldMap = overworldGenerator.initBoard ();
-			generateTiles ();
+            dungeons = new Dungeon[5];
+            dungeons[0] = dungeonGenerator.createLevel(4, 5, 0, 10, 30, 30);
+            dungeons[1] = dungeonGenerator.createLevel(20, 6, 0, 10, 50, 50);
+            dungeons[2] = dungeonGenerator.createLevel(40, 7, 0, 10, 70, 70);
+            dungeons[3] = dungeonGenerator.createLevel(60, 8, 0, 10, 90, 90);
+            dungeons[4] = dungeonGenerator.createLevel(80, 9, 0, 10, 110, 110);
+
+            generateTiles ();
             setInitialPlayerPosition();
 		}
 

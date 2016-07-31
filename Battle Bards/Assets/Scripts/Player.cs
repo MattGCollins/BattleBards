@@ -74,14 +74,12 @@ namespace Tutorial2D
         {
             if ((xDir != 0 || yDir != 0))
             {
-                Debug.Log("Move Check");
                 //Hit allows us to reference the result of the Linecast done in Move.
                 RaycastHit2D hit;
 
 			    //If Move returns true, meaning Player was able to move into an empty space.
 			    if (Move (xDir, yDir, out hit)) 
 			    {
-                    Debug.Log("Move Good!");
                     //Call RandomizeSfx of SoundManager to play the move sound, passing in two audio clips to choose from.
                 }
             }
