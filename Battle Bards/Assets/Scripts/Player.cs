@@ -11,6 +11,7 @@ namespace Tutorial2D
 		private Animator animator;                  //Used to store a reference to the Player's animator component.
         public float restartLevelDelay = 1f;        //Delay time in seconds to restart level.
         private bool wasMoving = false;
+        public bool stoppedMoving = false;
         
 		//Start overrides the Start function of MovingObject
 		protected override void Start ()
@@ -30,9 +31,9 @@ namespace Tutorial2D
 
 
 		private void Update ()
-		{
-
-			int horizontal = 0;     //Used to store the horizontal move direction.
+        {
+            stoppedMoving = false;
+            int horizontal = 0;     //Used to store the horizontal move direction.
 			int vertical = 0;       //Used to store the vertical move direction.
 
 
@@ -56,10 +57,7 @@ namespace Tutorial2D
             {
                 if (wasMoving)
                 {
-                    if (!checkForEnemyInRegion())
-                    {
-                        AttemptMove(horizontal, vertical);
-                    }
+                    stoppedMoving = true;
                 } else
                 {
                     AttemptMove(horizontal, vertical);
@@ -84,43 +82,6 @@ namespace Tutorial2D
                 }
             }
         }
-
-        private bool checkForEnemyInRegion()
-        {
-            int x = Convert.ToInt32(transform.position.x);
-            int y = Convert.ToInt32(transform.position.y);
-            int chance = 0;
-            switch (BoardManager.overworldMap.boardTiles[x, y])
-            {
-                case OverworldTiles.PATH_TILE:
-                    chance = 2;
-                    break;
-                case OverworldTiles.GRASS_TILE:
-                    chance = 5;
-                    break;
-                case OverworldTiles.FOREST_TILE:
-                    chance = 10;
-                    break;
-                case OverworldTiles.SAND_TILE:
-                    chance = 20;
-                    break;
-            }
-
-
-            System.Random random = new System.Random();
-
-            if (random.Next(0, 100) <= chance)
-            {
-                //GameObject.Find("GameManager").GetComponent<GameManager>().playerPos = transform.position;
-                //Invoke the Restart function to start the next level with a delay of restartLevelDelay (default 1 second).
-                Debug.Log("Battle!");
-                //Invoke("LoadCombat", restartLevelDelay);
-                return true;
-            }
-
-            return false;
-        }
-
 
 		//OnCantMove overrides the abstract function OnCantMove in MovingObject.
 		//It takes a generic parameter T which in the case of Player is a Wall which the player can attack and destroy.

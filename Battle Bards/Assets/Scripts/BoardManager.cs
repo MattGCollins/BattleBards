@@ -9,23 +9,28 @@ namespace Tutorial2D
 {
 
 	public class BoardManager : MonoBehaviour
-	{
-		public GameObject[] mapTiles;                             //Array of outer tile prefabs.
+    {
+        public GameObject[] overworldTiles;
+        public GameObject[] dungeonTiles;
 
-		private Transform boardHolder;                                  //A variable to store a reference to the transform of our Board object.
+        private Transform boardHolder;                                  //A variable to store a reference to the transform of our Board object.
 		private List <Vector3> gridPositions = new List <Vector3> ();   //A list of possible locations to place tiles.
 
-		public static OverworldMap overworldMap;
-        public static Dungeon[] dungeons;
+		public OverworldMap overworldMap;
+        public Dungeon[] dungeons;
 
         private OverworldGenerator overworldGenerator;
         private DungeonGenerator dungeonGenerator;
 
+        private int currentFloor = -1;
+
+        Player player;
 
         //Sets up the outer walls and floor (background) of the game board.
-        void BoardSetup ()
+        public void boardSetup ()
 		{
             //Instantiate Board and set boardHolder to its transform.
+            player = FindObjectOfType(typeof(Player)) as Player;
             overworldGenerator = GetComponent<OverworldGenerator>();
             dungeonGenerator = GetComponent<DungeonGenerator>();
             boardHolder = new GameObject ("Board").transform;
@@ -38,40 +43,69 @@ namespace Tutorial2D
             dungeons[3] = dungeonGenerator.createLevel(60, 8, 0, 10, 90, 90);
             dungeons[4] = dungeonGenerator.createLevel(80, 9, 0, 10, 110, 110);
 
-            generateTiles ();
+            generateOverworldTiles();
             setInitialPlayerPosition();
 		}
 
         private void setInitialPlayerPosition()
         {
-            Transform playerTransform = GameObject.Find("Player").transform;
-            if(null != playerTransform)
+            setPlayerPosition(overworldMap.cityX, overworldMap.cityY);
+        }
+
+        private void setPlayerPosition(int x, int y)
+        {
+            Transform playerTransform = player.gameObject.transform;
+            if (null != playerTransform)
             {
-                playerTransform.position = new Vector3(overworldMap.cityX, overworldMap.cityY, playerTransform.position.z);
+                playerTransform.position = new Vector3(x, y, playerTransform.position.z);
             }
         }
 
-        void generateTiles ()
-		{
-			for(int x = 0; x < OverworldMap.mapWidth; ++x) {
-				for (int y = 0; y < OverworldMap.mapHeight; ++y) {
-					generateTile (overworldMap.boardTiles[x, y], x, y);
-				}
-			}
-		}
+        void generateOverworldTiles()
+        {
+            for (int x = 0; x < OverworldMap.mapWidth; ++x)
+            {
+                for (int y = 0; y < OverworldMap.mapHeight; ++y)
+                {
+                    generateOverworldTile(overworldMap.boardTiles[x, y], x, y);
+                }
+            }
+        }
 
-		public GameObject generateTile(int tileIndex, int x, int y) {
-			GameObject toInstantiate = mapTiles [tileIndex];
-			GameObject instance = Instantiate (toInstantiate, new Vector3 ((float) x, (float) y, 0f), Quaternion.identity) as GameObject;
+        void generateDungeonTiles()
+        {
+            for (int x = 0; x < dungeons[currentFloor].mapWidth; ++x)
+            {
+                for (int y = 0; y < dungeons[currentFloor].mapHeight; ++y)
+                {
+                    generateDungeonTile(dungeons[currentFloor].boardTiles[x, y], x, y);
+                }
+            }
+        }
 
-			instance.transform.SetParent (boardHolder);
+        public GameObject generateOverworldTile(int tileIndex, int x, int y)
+        {
+            GameObject toInstantiate = overworldTiles[tileIndex];
+            GameObject instance = Instantiate(toInstantiate, new Vector3((float)x, (float)y, 0f), Quaternion.identity) as GameObject;
 
-			return instance;
-		}
+            instance.transform.SetParent(boardHolder);
+
+            return instance;
+        }
+
+        public GameObject generateDungeonTile(int tileIndex, int x, int y)
+        {
+            GameObject toInstantiate = dungeonTiles[tileIndex];
+            GameObject instance = Instantiate(toInstantiate, new Vector3((float)x, (float)y, 0f), Quaternion.identity) as GameObject;
+
+            instance.transform.SetParent(boardHolder);
+
+            return instance;
+        }
 
 
-		//RandomPosition returns a random position from our list gridPositions.
-		Vector3 RandomPosition ()
+        //RandomPosition returns a random position from our list gridPositions.
+        Vector3 RandomPosition ()
 		{
 			//Declare an integer randomIndex, set it's value to a random number between 0 and the count of items in our List gridPositions.
 			int randomIndex = Random.Range (0, gridPositions.Count);
@@ -105,32 +139,97 @@ namespace Tutorial2D
 				//Instantiate tileChoice at the position returned by RandomPosition with no change in rotation
 				Instantiate(tileChoice, randomPosition, Quaternion.identity);
 			}
-		}
+        }
 
+        public void doTileActions()
+        {
+            Transform playerTransform = player.gameObject.transform;
+            int x = Convert.ToInt32(playerTransform.position.x);
+            int y = Convert.ToInt32(playerTransform.position.y);
+            if (-1 == currentFloor)
+            {
+                doOverworldActions(x, y);
+            } else
+            {
+                doDungeonActions(x, y);
+            }
+        }
 
-		//SetupScene initializes our level and calls the previous functions to lay out the game board
-		public void SetupScene (int level)
-		{
-			//Creates the outer walls and floor.
-			BoardSetup ();
+        private void doOverworldActions(int x, int y)
+        {
+            switch (overworldMap.boardTiles[x, y])
+            {
+                case OverworldTiles.PATH_TILE:
+                    checkForEnemyInRegion(2);
+                    break;
+                case OverworldTiles.GRASS_TILE:
+                    checkForEnemyInRegion(5);
+                    break;
+                case OverworldTiles.FOREST_TILE:
+                    checkForEnemyInRegion(10);
+                    break;
+                case OverworldTiles.SAND_TILE:
+                    checkForEnemyInRegion(20);
+                    break;
+                case OverworldTiles.CAVE_TILE:
+                    changeFloor(1);
+                    break;
+            }
+        }
 
-			//Reset our list of gridpositions.
-			//InitialiseList ();
+        private void doDungeonActions(int x, int y)
+        {
+            switch (dungeons[currentFloor].boardTiles[x, y])
+            {
+                case DungeonTiles.TILE_FLOOR:
+                    checkForEnemyInRegion(2);
+                    break;
+                case DungeonTiles.TILE_START:
+                    changeFloor(-1);
+                    break;
+                case DungeonTiles.TILE_END:
+                    changeFloor(1);
+                    break;
+            }
+        }
 
-			//Instantiate a random number of wall tiles based on minimum and maximum, at randomized positions.
-			//LayoutObjectAtRandom (wallTiles, wallCount.minimum, wallCount.maximum);
+        private void checkForEnemyInRegion(int chance)
+        {
+            System.Random random = new System.Random();
+            if (random.Next(0, 100) <= chance)
+            {
+                //GameObject.Find("GameManager").GetComponent<GameManager>().playerPos = transform.position;
+                //Invoke the Restart function to start the next level with a delay of restartLevelDelay (default 1 second).
+                Debug.Log("Battle!");
+                //Invoke("LoadCombat", restartLevelDelay);
+            }
+        }
 
-			//Instantiate a random number of food tiles based on minimum and maximum, at randomized positions.
-			//LayoutObjectAtRandom (foodTiles, foodCount.minimum, foodCount.maximum);
-
-			//Determine number of enemies based on current level number, based on a logarithmic progression
-			//int enemyCount = (int)Mathf.Log(level, 2f);
-
-			//Instantiate a random number of enemies based on minimum and maximum, at randomized positions.
-			//LayoutObjectAtRandom (enemyTiles, enemyCount, enemyCount);
-
-			//Instantiate the exit tile in the upper right hand corner of our game board
-			//Instantiate (exit, new Vector3 (columns - 1, rows - 1, 0f), Quaternion.identity);
-		}
+        private void changeFloor(int difference)
+        {
+            if(currentFloor < 4)
+            {
+                GameObject.Destroy(boardHolder.gameObject);
+                currentFloor += difference;
+                boardHolder = new GameObject("Board").transform;
+                if (-1 == currentFloor)
+                {
+                    generateOverworldTiles();
+                    setPlayerPosition(overworldMap.caveX, overworldMap.caveY);
+                }
+                else
+                {
+                    generateDungeonTiles();
+                    if (-1 == difference)
+                    {
+                        setPlayerPosition(dungeons[currentFloor].endX, dungeons[currentFloor].endY);
+                    }
+                    else if (1 == difference)
+                    {
+                        setPlayerPosition(dungeons[currentFloor].startX, dungeons[currentFloor].startX);
+                    }
+                }
+            }
+        }
 	}
 }

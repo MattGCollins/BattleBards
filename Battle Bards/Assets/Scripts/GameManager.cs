@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using Tutorial2D;
 
 namespace Tutorial2D
 {
@@ -11,12 +12,12 @@ namespace Tutorial2D
 
 		public static GameManager instance = null;              //Static instance of GameManager which allows it to be accessed by any other script.
 		private BoardManager boardScript;                       //Store a reference to our BoardManager which will set up the level.
-		private int level = 3;                                  //Current level number, expressed in game as "Day 1".
-        public Vector3 playerPos;
+        Player player;
 
-		//Awake is always called before any Start functions
-		void Awake()
+        //Awake is always called before any Start functions
+        void Awake()
 		{
+            player = FindObjectOfType(typeof(Player)) as Player;
 			//Check if instance already exists
 			if (instance == null)
 
@@ -35,34 +36,20 @@ namespace Tutorial2D
 			//Get a component reference to the attached BoardManager script
 			boardScript = GetComponent<BoardManager>();
 
-			//Call the InitGame function to initialize the first level 
-			InitOverworld();
-		}
-
-        void OnLevelWasLoaded(int index)
+            //Call the InitGame function to initialize the first level 
+            boardScript.boardSetup();
+        }
+        
+		//Update is called every frame.
+		void Update()
         {
-            Scene scene = SceneManager.GetActiveScene();
-            //Call InitGame to initialize our level.
-            if (scene.name == "testScene")
+            if (player.stoppedMoving)
             {
-                GameObject.Find("Player").transform.position = playerPos;
-                InitOverworld();
+                boardScript.doTileActions();
             }
         }
 
-		//Initializes the game for each level.
-		void InitOverworld()
-		{
-			//Call the SetupScene function of the BoardManager script, pass it current level number.
-			boardScript.SetupScene(level);
-		}
 
 
-
-		//Update is called every frame.
-		void Update()
-		{
-
-		}
-	}
+    }
 }

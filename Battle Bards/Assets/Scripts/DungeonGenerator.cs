@@ -9,18 +9,19 @@ namespace MapGenerator {
     {
         public const int TILE_WALL = 0;
         public const int TILE_FLOOR = 1;
-        public const int TILE_START = 1;
-        public const int TILE_END = 1;
+        public const int TILE_START = 2;
+        public const int TILE_END = 3;
     }
 
     public class Dungeon
     {
         public int[,] boardTiles;
+        public int mapWidth;
+        public int mapHeight;
         public int startX;
         public int startY;
         public int endX;
         public int endY;
-        public int level;
     }
 
 	public class DungeonGenerator : MonoBehaviour {
@@ -33,13 +34,15 @@ namespace MapGenerator {
 
 		public Dungeon createLevel(int numOfRooms, int maxRoomSize, int startingPaths, int maxPathLength, int mapWidth, int mapHeight) {
             dungeon = new Dungeon();
-			dungeon.boardTiles = new int[mapWidth, mapHeight];
+            dungeon.mapWidth = mapWidth;
+            dungeon.mapHeight = mapHeight;
+            dungeon.boardTiles = new int[mapWidth, mapHeight];
 
-			generateStartingRooms (numOfRooms, maxRoomSize, mapWidth, mapHeight);
+			generateStartingRooms (numOfRooms, maxRoomSize);
 
-			generateStartingPaths (startingPaths, maxPathLength, mapWidth, mapHeight);
+			generateStartingPaths (startingPaths, maxPathLength);
 
-			generateConnectingPaths (mapWidth, mapHeight);
+			generateConnectingPaths ();
 
 			foreach(Room room in rooms) {
 				addRoomToBoard (room);
@@ -50,41 +53,41 @@ namespace MapGenerator {
             return dungeon;
 		}
 
-		void generateStartingRooms (int numOfRooms, int maxRoomSize, int mapWidth, int mapHeight)
+		void generateStartingRooms (int numOfRooms, int maxRoomSize)
 		{
 			startRoom = createRoom (1, 1, 2, 2);
 			rooms.Add (startRoom);
-			generateEndRoom (mapWidth, mapHeight);
+			generateEndRoom ();
 
 			for (int i = 0; i < numOfRooms; ++i) {
-				generateRoom (maxRoomSize, mapWidth, mapHeight);
+				generateRoom (maxRoomSize);
 			}
 		}
 
-		void generateEndRoom (int mapWidth, int mapHeight)
+		void generateEndRoom ()
 		{
 			int quadrant = Random.Range (0, 3);
-			int xStart = quadrant == 0 ? 1 : mapWidth / 2;
-			int yStart = quadrant == 2 ? 1 : mapHeight / 2;
-			int roomX = Random.Range (xStart, mapWidth - 3 - 2);
-			int roomY = Random.Range (yStart, mapHeight - 3 - 2);
+			int xStart = quadrant == 0 ? 1 : dungeon.mapWidth / 2;
+			int yStart = quadrant == 2 ? 1 : dungeon.mapHeight / 2;
+			int roomX = Random.Range (xStart, dungeon.mapWidth - 3 - 2);
+			int roomY = Random.Range (yStart, dungeon.mapHeight - 3 - 2);
 			endRoom = createRoom (roomX, roomY, 2, 2);
 			rooms.Add (endRoom);
 		}
 
-		void generateRoom (int maxRoomSize, int mapWidth, int mapHeight)
+		void generateRoom (int maxRoomSize)
 		{
 			int roomWidth = Random.Range (2, maxRoomSize + 1);
 			int roomHeight = Random.Range (2, maxRoomSize + 1);
-			int roomX = Random.Range (1, mapWidth - roomWidth - 2);
-			int roomY = Random.Range (1, mapHeight - roomHeight - 2);
+			int roomX = Random.Range (1, dungeon.mapWidth - roomWidth - 2);
+			int roomY = Random.Range (1, dungeon.mapHeight - roomHeight - 2);
 			rooms.Add (createRoom (roomX, roomY, roomWidth, roomHeight));
 		}
 
-		void generateStartingPaths (int startingPaths, int maxPathLength, int mapWidth, int mapHeight)
+		void generateStartingPaths (int startingPaths, int maxPathLength)
 		{
-			int halfWidth = (mapWidth - maxPathLength - 1) / 2;
-			int halfHeight = (mapHeight - maxPathLength - 1) / 2;
+			int halfWidth = (dungeon.mapWidth - maxPathLength - 1) / 2;
+			int halfHeight = (dungeon.mapHeight - maxPathLength - 1) / 2;
 			for (int i = 0; i < startingPaths; ++i) {
 				int startX = Random.Range (1, halfHeight) * 2;
 				int startY = Random.Range (1, halfWidth) * 2;
@@ -98,9 +101,9 @@ namespace MapGenerator {
 			}
 		}
 
-		void generateConnectingPaths (int mapWidth, int mapHeight)
+		void generateConnectingPaths ()
 		{
-			connectRoomGroups (mapWidth, mapHeight, generateRoomGroups ());
+			connectRoomGroups (generateRoomGroups ());
 		}
 
 		void addStartAndEnd ()
@@ -141,11 +144,11 @@ namespace MapGenerator {
 			return roomGroups;
 		}
 
-		void connectRoomGroups (int mapWidth, int mapHeight, ArrayList roomGroups)
+		void connectRoomGroups (ArrayList roomGroups)
 		{
 			while (roomGroups.Count > 1) {
 				RoomGroup randomGroup = (RoomGroup)roomGroups [Random.Range (0, roomGroups.Count)];
-				int minDistance = mapWidth + mapHeight;
+				int minDistance = dungeon.mapWidth + dungeon.mapHeight;
 				Room addingRoom = null;
 				Room addingGroupRoom = null;
 				foreach (Room room in rooms) {
