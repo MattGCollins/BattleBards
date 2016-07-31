@@ -207,7 +207,7 @@ namespace Tutorial2D
 
         private void changeFloor(int difference)
         {
-            if(currentFloor < 4)
+            if(currentFloor < 4 || 1 != difference)
             {
                 GameObject.Destroy(boardHolder.gameObject);
                 currentFloor += difference;
